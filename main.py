@@ -11,6 +11,7 @@ from telegram.ext import (
     ContextTypes,
 )
 from catalog import register_catalog_handlers, catalog_command
+from cart import register_cart_handlers, view_cart
 
 # Загружаем токен из .env
 load_dotenv()
@@ -18,7 +19,7 @@ TOKEN = os.getenv("TOKEN")
 
 # Приветствие при /start или кнопке "Старт"
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [["Старт", "Каталог"]]  # Нижняя клавиатура
+    keyboard = [["Старт", "Каталог", "Корзина"]]  # Нижняя клавиатура
     reply_markup = ReplyKeyboardMarkup(
         keyboard, resize_keyboard=True, one_time_keyboard=False
     )
@@ -37,10 +38,14 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await start(update, context)
     elif text == "Каталог":
         await catalog_command(update, context)  # Без команды — вызываем напрямую
+    elif text == "Корзина":
+        await view_cart(update, context)
+
 
 # Запуск бота
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
+    register_cart_handlers(app)
 
     # Команды и кнопки
     app.add_handler(CommandHandler("start", start))
